@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tu Tienda Online</title>
+  <!-- Compiled and minified CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <!-- Compiled and minified JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <!--Vue--> 
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="app">
+  <div class="navbar">
+    <div class="carrito">
+      <button @click="toggleCarrito">Carrito de compras</button>
+    </div>
+  </div>
+
+  <div class="p-container">
+    <article>
+      <h1>Productos</h1>
+      <div class="productos">
+        <productos
+          v-for="(producto, index) in productos"
+          :key="index"
+          :nombre="producto.nombre" 
+          :foto="producto.foto" 
+          :precio="producto.precio"
+          :cantidad="cantidad"
+          :anadir-cesta="anadirCesta, cantidad"
+        ></productos>
+      </div>
+    </article>
+  </div>
+
+  <div class="sidebar" v-if="mostrarCarrito">
+    <h2>Carrito de compras</h2>
+    <ul>
+      <li v-for="(producto, index) in carrito" :key="index">
+        {{ producto.nombre }}  {{ producto.precio * producto.cantidad }}€ ({{ producto.cantidad }})
+        <br>
+        <img :src="producto.foto" :alt="producto.nombre" width="100px">
+        <hr>
+      </li>
+    </ul>
+    <p>Total: {{ calcularTotal() }}€</p>
+  </div>
+</div>
+
+<script>
+  const {createApp} = Vue;
+
+  var app = createApp({
+    data() {
+      return {
+        carrito: [],
+        productos:[{
+            nombre:'Pc',
+            foto:'https://img.pccomponentes.com/articles/1080/10803712/1350-pccom-ready-amd-ryzen-7-5800x-32gb-1tb-ssd-rtx-3060-comprar.jpg',
+            precio:400
+        },
+        {
+            nombre:'Almohada',
+            foto:'https://colchonsplendor.com/1242-thickbox_default/almohada-fibra.jpg',
+            precio:500
+        },
+        {
+            nombre:'Martillo',
+            foto:'https://refilia.es/1095-large_default/martillo-de-carpintero.jpg',
+            precio:20
+        },
+        {
+            nombre:'Coche',
+            foto:'https://s3.abcstatics.com/abc/www/multimedia/motor/2023/02/02/01BUGATTI_Chiron-Profilee_auction.jpg',
+            precio:9000000
+        },
+        {
+            nombre:'Coche',
+            foto:'https://s3.abcstatics.com/abc/www/multimedia/motor/2023/02/02/01BUGATTI_Chiron-Profilee_auction.jpg',
+            precio:9000000
+        },
+        {
+            nombre:'Lapiz',
+            foto:'https://cdndisofic.es/multimedia/imagenes_gra/F249080.jpg',
+            precio:1
+        }],
+        mostrarCarrito: false,
+        cantidad: 1
+      };
+    },
+    methods: {
+      toggleCarrito() {
+        this.mostrarCarrito = !this.mostrarCarrito;
+      },
+      anadirCesta(producto, cantidad) {
+        this.mostrarCarrito = true;
+        
+        const productoEnCarrito = this.carrito.find(
+          (item) => item.nombre === producto.nombre
+        );
+        console.log("Cantidad: ", cantidad)
+        if (productoEnCarrito) {
+          productoEnCarrito.cantidad += cantidad;
+        } else {
+          this.carrito.push({
+            ...producto,
+            cantidad: cantidad,
+          });
+        }
+      },
+      calcularTotal() {
+        return this.carrito.reduce(
+          (total, producto) =>
+            total + producto.precio * producto.cantidad,
+          0
+        );
+      },
+    },
+  });
+
+  app.component("productos", {
+    props: ["nombre", "foto", "precio", "anadirCesta"], 
+    template: `
+      <div class="producto">
+        <img :src="foto" :alt="nombre">
+        <div class="info">
+          <span>{{ nombre }}</span>
+          <span>{{ precio }}€</span>
+        </div>
+        <div class="contador">
+          <span>Cantidad: </span>
+          <input v-model="cantidad" type="number" min="1" max="99">
+        </div>
+        <button @click="anadirCesta({ nombre, foto, precio }, cantidad)">Añadir a la cesta</button>
+      </div>
+    `,
+    data() {
+      return {
+        cantidad: 1
+      };
+    },
+  });
+
+  app.mount("#app");
+</script>
+
+</body>
+</html>
